@@ -743,7 +743,11 @@ func (s *Server) sendCodeResponse(w http.ResponseWriter, r *http.Request, authRe
 		v := url.Values{}
 		v.Set("access_token", accessToken)
 		v.Set("token_type", "bearer")
-		v.Set("state", authReq.State)
+
+		if authReq.State != "" {
+			v.Set("state", authReq.State)
+		}
+
 		if idToken != "" {
 			v.Set("id_token", idToken)
 			// The hybrid flow with only "code token" or "code id_token" doesn't return an
@@ -780,7 +784,11 @@ func (s *Server) sendCodeResponse(w http.ResponseWriter, r *http.Request, authRe
 		//
 		q := u.Query()
 		q.Set("code", code.ID)
-		q.Set("state", authReq.State)
+
+		if authReq.State != "" {
+			q.Set("state", authReq.State)
+		}
+
 		u.RawQuery = q.Encode()
 	}
 
