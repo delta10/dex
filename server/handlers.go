@@ -146,11 +146,29 @@ func (s *Server) handleAuthorization(w http.ResponseWriter, r *http.Request) {
 	}
 
 	connectorID := r.Form.Get("connector_id")
-	connectors, err := s.storage.ListConnectors(ctx)
+
+	connectorsFromStorage, err := s.storage.ListConnectors(ctx)
 	if err != nil {
 		s.logger.ErrorContext(r.Context(), "failed to get list of connectors", "err", err)
 		s.renderError(r, w, http.StatusInternalServerError, "Failed to retrieve connector list.")
 		return
+	}
+
+	connectors := []storage.Connector{}
+	for _, c := range connectorsFromStorage {
+		if len(c.IPWhitelist) == 0 {
+			connectors = append(connectors, c)
+			continue
+		}
+
+		userIp := readUserIP(r)
+		for _, i := range c.IPWhitelist {
+			if i == userIp {
+				connectors = append(connectors, c)
+				break
+			}
+		}
+
 	}
 
 	// We don't need connector_id any more
@@ -746,6 +764,7 @@ func (s *Server) sendCodeResponse(w http.ResponseWriter, r *http.Request, authRe
 		if accessToken != "" {
 			v.Set("access_token", accessToken)
 			v.Set("token_type", "bearer")
+
 			// The hybrid flow with "code token" or "code id_token token" doesn't return an
 			// "expires_in" value. If "code" wasn't provided, indicating the implicit flow,
 			// don't add it.
@@ -755,7 +774,10 @@ func (s *Server) sendCodeResponse(w http.ResponseWriter, r *http.Request, authRe
 				v.Set("expires_in", strconv.Itoa(int(idTokenExpiry.Sub(s.now()).Seconds())))
 			}
 		}
-		v.Set("state", authReq.State)
+
+		if authReq.State != "" {
+			v.Set("state", authReq.State)
+		}
 		if idToken != "" {
 			v.Set("id_token", idToken)
 		}
@@ -784,7 +806,11 @@ func (s *Server) sendCodeResponse(w http.ResponseWriter, r *http.Request, authRe
 		//
 		q := u.Query()
 		q.Set("code", code.ID)
-		q.Set("state", authReq.State)
+
+		if authReq.State != "" {
+			q.Set("state", authReq.State)
+		}
+
 		u.RawQuery = q.Encode()
 	}
 
