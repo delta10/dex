@@ -122,6 +122,19 @@ web:
 #
 # See the documentation (https://dexidp.io/docs/connectors/) for further information.
 # connectors: []
+#  - type: oidc
+#    id: aaenhunze
+#    ipWhitelist:
+#      - 192.168.1.1
+#    name: "OIDC"
+#    config:
+#      issuer: https://login.microsoftonline.com/uuid/v2.0
+#      clientID: id
+#      clientSecret: secret
+#      redirectURI: http://localhost:5556/dex/callback
+#      scopes:
+#        - profile
+#        - email
 
 # Enable the password database.
 #

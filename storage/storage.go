@@ -362,7 +362,8 @@ type Connector struct {
 	// The Type of the connector. E.g. 'oidc' or 'ldap'
 	Type string `json:"type"`
 	// The Name of the connector that is used when displaying it to the end user.
-	Name string `json:"name"`
+	Name        string   `json:"name"`
+	IPWhitelist []string `json:"ipWhitelist"`
 	// ResourceVersion is the static versioning used to keep track of dynamic configuration
 	// changes to the connector object made by the API calls.
 	ResourceVersion string `json:"resourceVersion"`

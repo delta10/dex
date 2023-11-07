@@ -137,11 +137,29 @@ func (s *Server) handleAuthorization(w http.ResponseWriter, r *http.Request) {
 
 	connectorID := r.Form.Get("connector_id")
 
-	connectors, err := s.storage.ListConnectors()
+	connectorsFromStorage, err := s.storage.ListConnectors()
 	if err != nil {
 		s.logger.Errorf("Failed to get list of connectors: %v", err)
 		s.renderError(r, w, http.StatusInternalServerError, "Failed to retrieve connector list.")
 		return
+	}
+
+	connectors := []storage.Connector{}
+	for _, c := range connectorsFromStorage {
+		if len(c.IPWhitelist) == 0 {
+			connectors = append(connectors, c)
+			continue
+		}
+
+		userIp := readUserIP(r)
+		s.logger.Errorf("%s", userIp)
+		for _, i := range c.IPWhitelist {
+			if i == userIp {
+				connectors = append(connectors, c)
+				break
+			}
+		}
+
 	}
 
 	// We don't need connector_id any more
