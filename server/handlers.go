@@ -152,7 +152,6 @@ func (s *Server) handleAuthorization(w http.ResponseWriter, r *http.Request) {
 		}
 
 		userIp := readUserIP(r)
-		s.logger.Errorf("%s", userIp)
 		for _, i := range c.IPWhitelist {
 			if i == userIp {
 				connectors = append(connectors, c)
