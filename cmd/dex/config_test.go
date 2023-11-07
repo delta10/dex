@@ -146,6 +146,8 @@ connectors:
 - type: mockCallback
   id: mock
   name: Example
+  ipWhitelist:
+  - 192.0.2.1
   grantTypes:
   - authorization_code
   - "urn:ietf:params:oauth:grant-type:token-exchange"
@@ -240,10 +242,11 @@ additionalFeatures: [
 		},
 		StaticConnectors: []Connector{
 			{
-				Type:   "mockCallback",
-				ID:     "mock",
-				Name:   "Example",
-				Config: &mock.CallbackConfig{},
+				Type:        "mockCallback",
+				ID:          "mock",
+				Name:        "Example",
+				Config:      &mock.CallbackConfig{},
+				IPWhitelist: []string{"192.0.2.1"},
 				GrantTypes: []string{
 					"authorization_code",
 					"urn:ietf:params:oauth:grant-type:token-exchange",
@@ -711,4 +714,15 @@ enablePasswordDB: true
 			}
 		})
 	}
+}
+
+func TestToStorageConnectorPreservesRestrictions(t *testing.T) {
+	c := Connector{
+		ID: "mock", Type: "mockCallback", Name: "Example", Config: &mock.CallbackConfig{},
+		IPWhitelist: []string{"192.0.2.1"}, GrantTypes: []string{"authorization_code"},
+	}
+	stored, err := ToStorageConnector(c)
+	require.NoError(t, err)
+	require.Equal(t, c.IPWhitelist, stored.IPWhitelist)
+	require.Equal(t, c.GrantTypes, stored.GrantTypes)
 }

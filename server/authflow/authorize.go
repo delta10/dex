@@ -63,7 +63,7 @@ func (h *Handler) handleAuthorization(w http.ResponseWriter, r *http.Request) {
 	grantType := h.grantTypeFromAuthRequest(r)
 	connectors := make([]storage.Connector, 0, len(allConnectors))
 	for _, c := range allConnectors {
-		if conns.GrantTypeAllowed(c.GrantTypes, grantType) {
+		if conns.GrantTypeAllowed(c.GrantTypes, grantType) && connectorIPAllowed(r, c.IPWhitelist) {
 			connectors = append(connectors, c)
 		}
 	}

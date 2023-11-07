@@ -588,9 +588,10 @@ func normalizeLocalSignerConfig(c *signer.LocalConfig) error {
 // Connector is a magical type that can unmarshal YAML dynamically. The
 // Type field determines the connector type, which is then customized for Config.
 type Connector struct {
-	Type string `json:"type"`
-	Name string `json:"name"`
-	ID   string `json:"id"`
+	Type        string   `json:"type"`
+	Name        string   `json:"name"`
+	ID          string   `json:"id"`
+	IPWhitelist []string `json:"ipWhitelist"`
 
 	Config     connectors.ConnectorConfig `json:"config"`
 	GrantTypes []string                   `json:"grantTypes"`
@@ -600,9 +601,10 @@ type Connector struct {
 // dynamically determine the type of the connector config.
 func (c *Connector) UnmarshalJSON(b []byte) error {
 	var conn struct {
-		Type string `json:"type"`
-		Name string `json:"name"`
-		ID   string `json:"id"`
+		Type        string   `json:"type"`
+		Name        string   `json:"name"`
+		ID          string   `json:"id"`
+		IPWhitelist []string `json:"ipWhitelist"`
 
 		Config     json.RawMessage `json:"config"`
 		GrantTypes []string        `json:"grantTypes"`
@@ -643,11 +645,12 @@ func (c *Connector) UnmarshalJSON(b []byte) error {
 	}
 
 	*c = Connector{
-		Type:       conn.Type,
-		Name:       conn.Name,
-		ID:         conn.ID,
-		Config:     connConfig,
-		GrantTypes: conn.GrantTypes,
+		Type:        conn.Type,
+		Name:        conn.Name,
+		ID:          conn.ID,
+		IPWhitelist: conn.IPWhitelist,
+		Config:      connConfig,
+		GrantTypes:  conn.GrantTypes,
 	}
 	return nil
 }
@@ -660,11 +663,12 @@ func ToStorageConnector(c Connector) (storage.Connector, error) {
 	}
 
 	return storage.Connector{
-		ID:         c.ID,
-		Type:       c.Type,
-		Name:       c.Name,
-		Config:     data,
-		GrantTypes: c.GrantTypes,
+		ID:          c.ID,
+		Type:        c.Type,
+		Name:        c.Name,
+		IPWhitelist: c.IPWhitelist,
+		Config:      data,
+		GrantTypes:  c.GrantTypes,
 	}, nil
 }
 

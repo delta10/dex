@@ -75,7 +75,9 @@ func (h *Handler) writeResponse(w http.ResponseWriter, r *http.Request, authReq 
 				v.Set("expires_in", strconv.Itoa(int(resp.idTokenExpiry.Sub(h.Now()).Seconds())))
 			}
 		}
-		v.Set("state", authReq.State)
+		if authReq.State != "" {
+			v.Set("state", authReq.State)
+		}
 		if resp.idToken != "" {
 			v.Set("id_token", resp.idToken)
 		}
@@ -104,7 +106,9 @@ func (h *Handler) writeResponse(w http.ResponseWriter, r *http.Request, authReq 
 		//
 		q := u.Query()
 		q.Set("code", resp.code.ID)
-		q.Set("state", authReq.State)
+		if authReq.State != "" {
+			q.Set("state", authReq.State)
+		}
 		u.RawQuery = q.Encode()
 	}
 

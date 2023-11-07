@@ -194,6 +194,19 @@ web:
 # For LDAP nested group resolution, set groupSearch.userMatchers[].recursionGroupAttr
 # in the connector config. See: https://dexidp.io/docs/connectors/ldap/
 # connectors: []
+#  - type: oidc
+#    id: aaenhunze
+#    ipWhitelist:
+#      - 192.168.1.1
+#    name: "OIDC"
+#    config:
+#      issuer: https://login.microsoftonline.com/uuid/v2.0
+#      clientID: id
+#      clientSecret: secret
+#      redirectURI: http://localhost:5556/dex/callback
+#      scopes:
+#        - profile
+#        - email
 
 # Enable the password database.
 #
